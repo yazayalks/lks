@@ -1,0 +1,76 @@
+﻿@model IEnumerable<lks.DbContexts.Comment>
+@{
+    ViewData["Title"] = "works";
+    ViewData["Comments"] = Model;
+}
+<!--introWorkHereIAm-->
+<div class="introWorkHereIAm">
+    <div class="container">
+        <div class="informationWorkHereIAm__title">
+            А вот и я!
+        </div>
+        <video class="videoWorkHereIAm" src="videos/HereIAm.mp4" width="720" controls="controls" poster="images/posterWorkHereIAm.jpg"></video>
+    </div>
+</div>
+
+<!--informationWorkHereIAm-->
+<div class="informationWorkHereIAm">
+    <div class="container">
+
+        <div class="informationWorkHereIAm__text">
+            В современном мире основную роль играет скорость движения жизни. Чтобы много в жизни успеть и чего-то достичь,
+            необходимо рационально распределять своё время, правильно расставить жизненные приоритеты.
+            С детства у человека закладываются такие важные качества, как: ответственность, пунктуальность, аккуратность.
+            Не развивая в себе этих качеств, человек рискует выпасть из стремительного, обусловленного правилами, потока жизни.
+        </div>
+    </div>
+</div>
+<!--send comment-->
+
+@if (User.Identity.IsAuthenticated)
+{
+    <div class="rating" dataTotalValue="0">
+        <div class="rating__item" dataTotalValue="5">5☆</div>
+        <div class="rating__item" dataTotalValue="4">4☆</div>
+        <div class="rating__item" dataTotalValue="3">3☆</div>
+        <div class="rating__item" dataTotalValue="2">2☆</div>
+        <div class="rating__item" dataTotalValue="1">1☆</div>
+    </div>
+    <div class="informationWorkHereIAm__titleComment">
+        Оставить комментарий
+    </div>
+   
+    <form class="commentForm"  id="commentForm" >
+        <p>
+            <textarea typeof="text" name="Text" id="comment" cols="100" rows="10" > </textarea>
+        </p>
+        <input class="btn btn--black" type="button"  value="Опубликовать" id="sendBtn"/>
+    </form>
+    
+    <script src="js/signalr/dist/browser/signalr.min.js"></script>
+    <script>
+        const hubConnection = new signalR.HubConnectionBuilder()
+            .withUrl("/chatter")
+            .build();
+        
+        hubConnection.on("Send", function (data) {
+            let elem = document.createElement("div");
+            elem.innerHTML = data;
+            elem.className = "container";
+            let firstElem = document.getElementById("AllComments").firstChild;
+            document.getElementById("AllComments").insertBefore(elem, firstElem);
+ 
+        });
+ 
+        document.getElementById("sendBtn").addEventListener("click", function (e) {
+            let message = document.getElementById("comment").value;
+            let items = [];
+            items.push(message);
+            items.push("@User.Identity.Name");
+            items.push("1");
+            hubConnection.invoke("Send", items);
+        });
+ 
+        hubConnection.start();
+    </script>
+}

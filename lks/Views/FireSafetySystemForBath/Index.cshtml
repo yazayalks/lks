@@ -1,0 +1,85 @@
+﻿@using Microsoft.EntityFrameworkCore
+@using lks.DbContexts
+@using lks.Utilities
+@model IEnumerable<lks.DbContexts.Comment>
+@{
+    ViewData["Title"] = "fireSafetySystemForBath";
+    ViewData["Comments"] = Model;
+}
+
+
+<!--introFireSafetySystemForBath-->
+<div class="introFireSafetySystemForBath">
+    <div class="container">
+        <div class="informationWorkHereIAm__title">
+            Разработка автономной системы пожарной безопасности в бане на Raspberry Pi
+        </div>
+        <video class="videoWorkHereIAm" src="videos/fireSafetySystemForBath.mp4" width="720" controls="controls" poster="images/posterFireSafetySystemForBath.jpg"></video>
+    </div>
+</div>
+
+<!--informationWorkHereIAm-->
+<div class="informationWorkHereIAm">
+    <div class="container">
+
+        <div class="informationWorkHereIAm__text">
+            Сегодня в России, да и, пожалуй, во всём нашем мире стала наиболее актуально проблема пожарной безопасности объекта. Системы автономных электронных пожарных сигнализаций сейчас являются одним из главных способов устранения пожара.
+            Из-за большого использования цифровых методов обработки информации и современных электронных компонентов происходит существенное повышение технических средств, перестающих быть всего лишь вспомогательными и приобретающими всё новые свойства. Такие технические средства могут быть осуществлены в виде полностью интегрированной автономной системы или системы, которая состоит из функционально независимых компонентов.
+            Пожарные системы, состоящие из множества компонентов большой ёмкости, обычно применимы для обеспечения безопасности крупных предприятий, таких как: гостиницы, склады, банки и характеризуемы тем, что обслуживают сразу от нескольких сотен и до нескольких тысяч датчиков.
+            И при этом всём, контролировать нужно не только датчики, но и также устройства различного вида, которые управляют работой системы.
+            Одноплатные компьютеры же идеально подходят для организации и развития малых и средних систем пожарной безопасности. При малых затратах денежных средств и рабочего времени и можно с легкостью наладить производство датчиков, причем в таких изделиях от 30% до 90% функциональной нагрузки несёт на себе программное обеспечение, которое может быть легко модифицировано и приспособлено к нуждам потребителя.
+            В данном курсовом проекте реализована система пожарной безопасности в бане на базе одноплатного компьютера.
+
+        </div>
+    </div>
+</div>
+
+<!--send comment-->
+
+@if (User.Identity.IsAuthenticated)
+{
+    <div class="rating" dataTotalValue="0">
+        <div class="rating__item" dataTotalValue="5">5☆</div>
+        <div class="rating__item" dataTotalValue="4">4☆</div>
+        <div class="rating__item" dataTotalValue="3">3☆</div>
+        <div class="rating__item" dataTotalValue="2">2☆</div>
+        <div class="rating__item" dataTotalValue="1">1☆</div>
+    </div>
+    <div class="informationWorkHereIAm__titleComment">
+        Оставить комментарий
+    </div>
+   
+    <form class="commentForm"  id="commentForm" >
+        <p>
+            <textarea typeof="text" name="Text" id="comment" cols="100" rows="10" > </textarea>
+        </p>
+        <input class="btn btn--black" type="button"  value="Опубликовать" id="sendBtn"/>
+    </form>
+    
+    <script src="js/signalr/dist/browser/signalr.min.js"></script>
+    <script>
+        const hubConnection = new signalR.HubConnectionBuilder()
+            .withUrl("/chatter")
+            .build();
+        
+        hubConnection.on("Send", function (data) {
+            let elem = document.createElement("div");
+            elem.innerHTML = data;
+            elem.className = "container";
+            let firstElem = document.getElementById("AllComments").firstChild;
+            document.getElementById("AllComments").insertBefore(elem, firstElem);
+ 
+        });
+ 
+        document.getElementById("sendBtn").addEventListener("click", function (e) {
+            let message = document.getElementById("comment").value;
+            let items = [];
+            items.push(message);
+            items.push("@User.Identity.Name");
+            items.push("2");
+            hubConnection.invoke("Send", items);
+        });
+ 
+        hubConnection.start();
+    </script>
+}
